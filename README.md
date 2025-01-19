@@ -21,66 +21,66 @@ Opcodes
 R Type
 ------
 
-sll   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000000
-srl   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000010
-sra   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000011
-sllv  rd, rt, rs 000000 sssss ttttt ddddd 00000 000100
-srlv  rd, rt, rs 000000 sssss ttttt ddddd 00000 000110
-srav  rd, rt, rs 000000 sssss ttttt ddddd 00000 000111
-jr    rs         000000 sssss 00000 00000 hhhhh 001000
-jalr  rd, rs     000000 sssss 00000 ddddd hhhhh 001001
-syscall          000000 xxxxx xxxxx xxxxx xxxxx 001100
-break            000000 xxxxx xxxxx xxxxx xxxxx 001101
-div   rs, rt     000000 sssss ttttt 00000 00000 011010 (not implemented)
-divu  rs, rt     000000 sssss ttttt 00000 00000 011011 (not implemented)
-mfhi  rd         000000 00000 00000 ddddd 00000 010000
-mthi  rs         000000 sssss 00000 00000 00000 010001
-mflo  rd         000000 00000 00000 ddddd 00000 010010
-mtlo  rs         000000 sssss 00000 00000 00000 010011
-mult  rs, rt     000000 sssss ttttt 00000 00000 011000
-multu rs, rt     000000 sssss ttttt 00000 00000 011001
-add   rd, rs, rt 000000 sssss ttttt ddddd 00000 100000
-addu  rd, rs, rt 000000 sssss ttttt ddddd 00000 100001
-sub   rd, rs, rt 000000 sssss ttttt ddddd 00000 100010
-subu  rd, rs, rt 000000 sssss ttttt ddddd 00000 100011
-and   rd, rs, rt 000000 sssss ttttt ddddd 00000 100100
-or    rd, rs, rt 000000 sssss ttttt ddddd 00000 100101
-xor   rd, rs, rt 000000 sssss ttttt ddddd 00000 100110
-nor   rd, rs, rt 000000 sssss ttttt ddddd 00000 100111
-slt   rd, rs, rt 000000 sssss ttttt ddddd 00000 101010
-sltu  rd, rs, rt 000000 sssss ttttt ddddd 00000 101011
+    sll   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000000
+    srl   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000010
+    sra   rd, rt, sa 000000 00000 ttttt ddddd aaaaa 000011
+    sllv  rd, rt, rs 000000 sssss ttttt ddddd 00000 000100
+    srlv  rd, rt, rs 000000 sssss ttttt ddddd 00000 000110
+    srav  rd, rt, rs 000000 sssss ttttt ddddd 00000 000111
+    jr    rs         000000 sssss 00000 00000 hhhhh 001000
+    jalr  rd, rs     000000 sssss 00000 ddddd hhhhh 001001
+    syscall          000000 xxxxx xxxxx xxxxx xxxxx 001100
+    break            000000 xxxxx xxxxx xxxxx xxxxx 001101
+    div   rs, rt     000000 sssss ttttt 00000 00000 011010 (not implemented)
+    divu  rs, rt     000000 sssss ttttt 00000 00000 011011 (not implemented)
+    mfhi  rd         000000 00000 00000 ddddd 00000 010000
+    mthi  rs         000000 sssss 00000 00000 00000 010001
+    mflo  rd         000000 00000 00000 ddddd 00000 010010
+    mtlo  rs         000000 sssss 00000 00000 00000 010011
+    mult  rs, rt     000000 sssss ttttt 00000 00000 011000
+    multu rs, rt     000000 sssss ttttt 00000 00000 011001
+    add   rd, rs, rt 000000 sssss ttttt ddddd 00000 100000
+    addu  rd, rs, rt 000000 sssss ttttt ddddd 00000 100001
+    sub   rd, rs, rt 000000 sssss ttttt ddddd 00000 100010
+    subu  rd, rs, rt 000000 sssss ttttt ddddd 00000 100011
+    and   rd, rs, rt 000000 sssss ttttt ddddd 00000 100100
+    or    rd, rs, rt 000000 sssss ttttt ddddd 00000 100101
+    xor   rd, rs, rt 000000 sssss ttttt ddddd 00000 100110
+    nor   rd, rs, rt 000000 sssss ttttt ddddd 00000 100111
+    slt   rd, rs, rt 000000 sssss ttttt ddddd 00000 101010
+    sltu  rd, rs, rt 000000 sssss ttttt ddddd 00000 101011
 
 I Type
 ------
 
-bltz  rt, rs, label 000001 sssss 00000 iiiiiiii iiiiiiii
-bgez  rt, rs, label 000001 sssss 00001 iiiiiiii iiiiiiii
-beq   rt, rs, label 000100 sssss ttttt iiiiiiii iiiiiiii
-bne   rt, rs, label 000101 sssss ttttt iiiiiiii iiiiiiii
-blez  rt, rs, label 000110 sssss 00000 iiiiiiii iiiiiiii
-bgtz  rt, rs, label 000111 sssss 00000 iiiiiiii iiiiiiii
-addi  rt, rs, imm   001000 sssss ttttt iiiiiiii iiiiiiii
-addiu rt, rs, imm   001001 sssss ttttt iiiiiiii iiiiiiii
-slti  rt, rs, imm   001010 sssss ttttt iiiiiiii iiiiiiii
-sltiu rt, rs, imm   001011 sssss ttttt iiiiiiii iiiiiiii
-andi  rt, rs, imm   001100 sssss ttttt iiiiiiii iiiiiiii
-ori   rt, rs, imm   001101 sssss ttttt iiiiiiii iiiiiiii
-xori  rt, rs, imm   001110 sssss ttttt iiiiiiii iiiiiiii
-lui   rt, imm       001111 00000 ttttt iiiiiiii iiiiiiii
-lb    rt, rs, label 100000 sssss ttttt iiiiiiii iiiiiiii
-lh    rt, rs, label 100001 sssss ttttt iiiiiiii iiiiiiii
-lw    rt, rs, label 100011 sssss ttttt iiiiiiii iiiiiiii
-lbu   rt, rs, label 100100 sssss ttttt iiiiiiii iiiiiiii
-lhu   rt, rs, label 100101 sssss ttttt iiiiiiii iiiiiiii
-sb    rt, rs, label 101000 sssss ttttt iiiiiiii iiiiiiii
-sh    rt, rs, label 101001 sssss ttttt iiiiiiii iiiiiiii
-sw    rt, rs, label 101011 sssss ttttt iiiiiiii iiiiiiii
+    bltz  rt, rs, label 000001 sssss 00000 iiiiiiii iiiiiiii
+    bgez  rt, rs, label 000001 sssss 00001 iiiiiiii iiiiiiii
+    beq   rt, rs, label 000100 sssss ttttt iiiiiiii iiiiiiii
+    bne   rt, rs, label 000101 sssss ttttt iiiiiiii iiiiiiii
+    blez  rt, rs, label 000110 sssss 00000 iiiiiiii iiiiiiii
+    bgtz  rt, rs, label 000111 sssss 00000 iiiiiiii iiiiiiii
+    addi  rt, rs, imm   001000 sssss ttttt iiiiiiii iiiiiiii
+    addiu rt, rs, imm   001001 sssss ttttt iiiiiiii iiiiiiii
+    slti  rt, rs, imm   001010 sssss ttttt iiiiiiii iiiiiiii
+    sltiu rt, rs, imm   001011 sssss ttttt iiiiiiii iiiiiiii
+    andi  rt, rs, imm   001100 sssss ttttt iiiiiiii iiiiiiii
+    ori   rt, rs, imm   001101 sssss ttttt iiiiiiii iiiiiiii
+    xori  rt, rs, imm   001110 sssss ttttt iiiiiiii iiiiiiii
+    lui   rt, imm       001111 00000 ttttt iiiiiiii iiiiiiii
+    lb    rt, rs, label 100000 sssss ttttt iiiiiiii iiiiiiii
+    lh    rt, rs, label 100001 sssss ttttt iiiiiiii iiiiiiii
+    lw    rt, rs, label 100011 sssss ttttt iiiiiiii iiiiiiii
+    lbu   rt, rs, label 100100 sssss ttttt iiiiiiii iiiiiiii
+    lhu   rt, rs, label 100101 sssss ttttt iiiiiiii iiiiiiii
+    sb    rt, rs, label 101000 sssss ttttt iiiiiiii iiiiiiii
+    sh    rt, rs, label 101001 sssss ttttt iiiiiiii iiiiiiii
+    sw    rt, rs, label 101011 sssss ttttt iiiiiiii iiiiiiii
 
 J Type
 ------
 
-j   label 000010 ii iiiiiiii iiiiiiii iiiiiiii
-jal label 000011 ii iiiiiiii iiiiiiii iiiiiiii
+    j   label 000010 ii iiiiiiii iiiiiiii iiiiiiii
+    jal label 000011 ii iiiiiiii iiiiiiii iiiiiiii
 
 Registers
 =========
