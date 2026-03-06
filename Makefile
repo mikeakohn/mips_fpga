@@ -40,6 +40,10 @@ alu:
 	naken_asm -l -type bin -o rom.bin test/alu.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
+branch:
+	naken_asm -l -type bin -o rom.bin test/branch.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
 clean:
 	@rm -f $(PROGRAM).bin $(PROGRAM).json $(PROGRAM).asc *.lst
 	@rm -f blink.bin load_byte.bin store_byte.bin test_subroutine.bin

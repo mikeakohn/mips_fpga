@@ -466,12 +466,9 @@ always @(posedge clk) begin
       STATE_BRANCH:
         begin
           case (branch_funct)
-            3'b000:
+            3'b001:
               // bltz (rt == 0), bgez (rt == 1).
-              if (rt == 0)
-                if ($signed(source) < 0) do_branch <= 1;
-              else
-                if ($signed(source) >= 0) do_branch <= 1;
+              do_branch <= source[31] ^ rt[0];
             3'b100:
               // beq.
               if (registers[rt] == source) do_branch <= 1;
@@ -480,10 +477,10 @@ always @(posedge clk) begin
               if (registers[rt] != source) do_branch <= 1;
             3'b110:
               // blez.
-              if ($signed(source) <= 0) do_branch <= 1;
-            3'b110:
+              do_branch <= source == 0 || source[31];
+            3'b111:
               // bgtz.
-              if ($signed(source) > 0) do_branch <= 1;
+              do_branch <= source != 0 && source[31] == 0;
           endcase
 
           result <= branch_address;
