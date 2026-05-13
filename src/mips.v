@@ -100,6 +100,10 @@ reg [31:0] lo;
 reg [3:0] alu_op;
 reg [2:0] wb;
 
+reg [31:0] store_temp;
+reg [31:0] alu_temp;
+reg [31:0] shift_temp;
+
 // Load / Store.
 assign memory_size = instruction[28:26];
 wire [31:0] ea;
@@ -121,8 +125,8 @@ end
 // Debug: This block simply drives the 8x4 LEDs.
 always @(posedge raw_clk) begin
   case (count[9:7])
-    3'b000: begin column_value <= 4'b0111; leds_value <= ~registers[9][7:0]; end
-    3'b010: begin column_value <= 4'b1011; leds_value <= ~registers[9][15:8]; end
+    3'b000: begin column_value <= 4'b0111; leds_value <= ~source[7:0]; end
+    3'b010: begin column_value <= 4'b1011; leds_value <= ~source[15:8]; end
     3'b100: begin column_value <= 4'b1101; leds_value <= ~pc[7:0]; end
     3'b110: begin column_value <= 4'b1110; leds_value <= ~state; end
     default: begin column_value <= 4'b1111; leds_value <= 8'hff; end
@@ -373,13 +377,15 @@ always @(posedge clk) begin
         end
       STATE_STORE_0:
         begin
+          store_temp = registers[rt];
+
           case (memory_size[1:0])
             2'b00:
               begin
-                mem_write[7:0]   <= registers[rt][7:0];
-                mem_write[15:8]  <= registers[rt][7:0];
-                mem_write[23:16] <= registers[rt][7:0];
-                mem_write[31:24] <= registers[rt][7:0];
+                mem_write[7:0]   = store_temp[7:0];
+                mem_write[15:8]  = store_temp[7:0];
+                mem_write[23:16] = store_temp[7:0];
+                mem_write[31:24] = store_temp[7:0];
 
                 mem_write_mask[0] <= ~(ea[1:0] == 0);
                 mem_write_mask[1] <= ~(ea[1:0] == 1);
@@ -388,8 +394,8 @@ always @(posedge clk) begin
               end
             2'b01:
               begin
-                mem_write[15:0]  <= registers[rt][15:0];
-                mem_write[31:16] <= registers[rt][15:0];
+                mem_write[15:0]  = store_temp[15:0];
+                mem_write[31:16] = store_temp[15:0];
 
                 mem_write_mask[0] <= ea[1:0] == 2;
                 mem_write_mask[1] <= ea[1:0] == 2;
@@ -398,7 +404,7 @@ always @(posedge clk) begin
               end
             2'b11:
               begin
-                mem_write <= registers[rt];
+                mem_write = store_temp;
                 mem_write_mask <= 4'b0000;
               end
           endcase
@@ -410,24 +416,27 @@ always @(posedge clk) begin
         end
       STATE_ALU:
         begin
+          alu_temp = registers[rs];
+          shift_temp = registers[rt];
+
           case (alu_op)
             //ALU_OP_NONE:
-            ALU_OP_MOV: result <= source;
-            ALU_OP_ADD: result <= registers[rs] + source;
-            ALU_OP_SUB: result <= registers[rs] - source;
-            ALU_OP_AND: result <= registers[rs] & source;
-            ALU_OP_XOR: result <= registers[rs] ^ source;
-            ALU_OP_NOR: result <= ~(registers[rs] | source);
-            ALU_OP_OR:  result <= registers[rs] | source;
-            ALU_OP_SLL: result <= registers[rt] << source;
-            ALU_OP_SRL: result <= registers[rt] >> source;
-            ALU_OP_SRA: result <= $signed(registers[rt]) >>> source;
+            ALU_OP_MOV: result = source;
+            ALU_OP_ADD: result = alu_temp + source;
+            ALU_OP_SUB: result = alu_temp - source;
+            ALU_OP_AND: result = alu_temp & source;
+            ALU_OP_XOR: result = alu_temp ^ source;
+            ALU_OP_NOR: result = ~(alu_temp | source);
+            ALU_OP_OR:  result = alu_temp | source;
+            ALU_OP_SLL: result = shift_temp << source;
+            ALU_OP_SRL: result = shift_temp >> source;
+            ALU_OP_SRA: result = $signed(shift_temp) >>> source;
             ALU_OP_SLT:
-              result <= $signed(registers[rs]) < $signed(source) ? 1 : 0;
-            ALU_OP_SLTU: result <= registers[rs] < source ? 1 : 0;
-            //ALU_OP_MULS: { hi, lo} <= $signed(registers[rs]) * $signed(source);
-            //ALU_OP_MULU: { hi, lo} <= registers[rs] * source;
-            ALU_OP_LUI: result <= { source, 16'h0000 };
+              result = $signed(alu_temp) < $signed(source) ? 1 : 0;
+            ALU_OP_SLTU: result = alu_temp < source ? 1 : 0;
+            //ALU_OP_MULS: { hi, lo} <= $signed(alu_temp) * $signed(source);
+            //ALU_OP_MULU: { hi, lo} <= alu_temp * source;
+            ALU_OP_LUI: result = { source, 16'h0000 };
           endcase
 
           state <= STATE_WRITEBACK;
