@@ -38,10 +38,15 @@ reg [3:0] column_value;
 assign leds = leds_value;
 assign column = column_value;
 
+// Load / Store.
+assign memory_size = instruction[28:26];
+wire [31:0] ea;
+assign ea = registers[rs] + simm16;
+
 // Memory bus (ROM, RAM, peripherals).
-reg [15:0] mem_address = 0;
-reg [31:0] mem_write = 0;
-reg [3:0] mem_write_mask = 0;
+wire [15:0] mem_address = state <= STATE_FETCH_OP_1 ? pc : { ea[15:2], 2'b00 };
+reg  [31:0] mem_write = 0;
+reg  [3:0]  mem_write_mask = 0;
 wire [31:0] mem_read;
 //wire mem_data_ready;
 reg mem_bus_enable = 0;
@@ -55,12 +60,12 @@ reg [4:0] state = 0;
 reg [3:0] clock_div;
 reg [14:0] delay_loop;
 wire clk;
-assign clk = clock_div[0];
+//assign clk = clock_div[0];
+assign clk = raw_clk;
 
 // Registers.
 reg [31:0] registers [31:0];
 reg [15:0] pc = 0;
-//reg [15:0] pc_current = 0;
 
 // Instruction
 reg [31:0] instruction;
@@ -104,12 +109,6 @@ reg [31:0] store_temp;
 reg [31:0] alu_temp;
 reg [31:0] shift_temp;
 
-// Load / Store.
-assign memory_size = instruction[28:26];
-wire [31:0] ea;
-//reg [31:0] ea_aligned;
-assign ea = registers[rs] + simm16;
-
 // Debug.
 //reg [7:0] debug_0 = 0;
 //reg [7:0] debug_1 = 0;
@@ -123,7 +122,7 @@ always @(posedge raw_clk) begin
 end
 
 // Debug: This block simply drives the 8x4 LEDs.
-always @(posedge raw_clk) begin
+always @(posedge clk) begin
   case (count[9:7])
     3'b000: begin column_value <= 4'b0111; leds_value <= ~source[7:0]; end
     3'b010: begin column_value <= 4'b1011; leds_value <= ~source[15:8]; end
@@ -191,7 +190,7 @@ always @(posedge clk) begin
       STATE_RESET:
         begin
           registers[0] <= 0;
-          mem_address <= 0;
+          //mem_address <= 0;
           mem_write_enable <= 0;
           mem_write <= 0;
           instruction <= 0;
@@ -214,10 +213,7 @@ always @(posedge clk) begin
           alu_op    <= ALU_OP_NONE;
           do_branch <= 0;
           mem_bus_enable   <= 1;
-          //mem_write_enable <= 0;
-          mem_address <= pc;
-          //pc_current = pc;
-          pc <= pc + 4;
+          //mem_address <= pc;
           state <= STATE_FETCH_OP_1;
         end
       STATE_FETCH_OP_1:
@@ -228,9 +224,10 @@ always @(posedge clk) begin
         end
       STATE_START_DECODE:
         begin
+          pc <= pc + 4;
+
           if (op == 6'b000000) begin
             // R Type Instructions.
-
             case (funct[5:4])
               2'b00:
                 if (funct[3] == 0) begin
@@ -319,7 +316,7 @@ always @(posedge clk) begin
             // This can probably be a wire.
             //ea <= registers[rs] + simm16;
             //mem_address <= registers[rs] + simm16;
-            mem_address <= { ea[15:2], 2'b00 };
+            //mem_address <= { ea[15:2], 2'b00 };
           end
         end
       STATE_FETCH_LOAD:
