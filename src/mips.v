@@ -60,8 +60,8 @@ reg [4:0] state = 0;
 reg [3:0] clock_div;
 reg [14:0] delay_loop;
 wire clk;
-//assign clk = clock_div[0];
-assign clk = raw_clk;
+assign clk = clock_div[0];
+//assign clk = raw_clk;
 
 // Registers.
 reg [31:0] registers [31:0];
