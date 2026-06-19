@@ -48,8 +48,8 @@ wire [15:0] mem_address = state <= STATE_FETCH_OP_1 ? pc : { ea[15:2], 2'b00 };
 reg  [31:0] mem_write;
 reg  [3:0]  mem_write_mask;
 wire [31:0] mem_read;
-reg mem_bus_enable = 0;
-reg mem_write_enable = 0;
+wire mem_bus_enable = state == STATE_FETCH_OP_1 || STATE_FETCH_LOAD || STATE_STORE_0;
+wire mem_write_enable = state == STATE_STORE_0;
 
 // Clock.
 reg [21:0] count = 0;
@@ -57,8 +57,8 @@ reg [4:0] state = 0;
 reg [3:0] clock_div;
 reg [14:0] delay_loop;
 wire clk;
-assign clk = clock_div[0];
-//assign clk = raw_clk;
+//assign clk = clock_div[0];
+assign clk = raw_clk;
 
 // Registers.
 reg [31:0] registers [31:0];
@@ -188,7 +188,7 @@ always @(posedge clk) begin
         begin
           registers[0] <= 0;
           //mem_address <= 0;
-          mem_write_enable <= 0;
+          //mem_write_enable <= 0;
           //mem_write <= 0;
           instruction <= 0;
           delay_loop <= 12000;
@@ -209,13 +209,13 @@ always @(posedge clk) begin
           wb        <= WB_RD;
           alu_op    <= ALU_OP_NONE;
           do_branch <= 0;
-          mem_bus_enable   <= 1;
+          //mem_bus_enable   <= 1;
           //mem_address <= pc;
           state <= STATE_FETCH_OP_1;
         end
       STATE_FETCH_OP_1:
         begin
-          mem_bus_enable <= 0;
+          //mem_bus_enable <= 0;
           instruction <= mem_read;
           state <= STATE_START_DECODE;
         end
@@ -298,7 +298,7 @@ always @(posedge clk) begin
               3'b100:
                 begin
                   // Load (lb, lbu, lh, lhu, lw).
-                  mem_bus_enable <= 1;
+                  //mem_bus_enable <= 1;
                   state <= STATE_FETCH_LOAD;
                 end
               3'b101:
@@ -318,7 +318,7 @@ always @(posedge clk) begin
         end
       STATE_FETCH_LOAD:
         begin
-            mem_bus_enable <= 0;
+            //mem_bus_enable <= 0;
 
             case (memory_size[1:0])
               2'b00:
@@ -395,8 +395,8 @@ always @(posedge clk) begin
 */
 
           wb <= WB_NONE;
-          mem_write_enable <= 1;
-          mem_bus_enable <= 1;
+          //mem_write_enable <= 1;
+          //mem_bus_enable <= 1;
           state <= STATE_WRITEBACK;
         end
       STATE_ALU:
@@ -495,8 +495,8 @@ always @(posedge clk) begin
             WB_BR: if (do_branch) pc <= result;
           endcase
 
-          mem_bus_enable <= 0;
-          mem_write_enable <= 0;
+          //mem_bus_enable <= 0;
+          //mem_write_enable <= 0;
 
           state <= STATE_FETCH_OP_0;
         end
