@@ -46,13 +46,10 @@ assign ea = registers[rs] + simm16;
 // Memory bus (ROM, RAM, peripherals).
 wire [15:0] mem_address = state <= STATE_FETCH_OP_1 ? pc : { ea[15:2], 2'b00 };
 reg  [31:0] mem_write = 0;
-reg  [3:0]  mem_write_mask = 0;
+reg  [3:0]  mem_write_mask;
 wire [31:0] mem_read;
-//wire mem_data_ready;
 reg mem_bus_enable = 0;
 reg mem_write_enable = 0;
-
-//wire [7:0] mem_debug;
 
 // Clock.
 reg [21:0] count = 0;
@@ -383,26 +380,15 @@ always @(posedge clk) begin
                 mem_write[15:8]  = store_temp[7:0];
                 mem_write[23:16] = store_temp[7:0];
                 mem_write[31:24] = store_temp[7:0];
-
-                mem_write_mask[0] <= ~(ea[1:0] == 0);
-                mem_write_mask[1] <= ~(ea[1:0] == 1);
-                mem_write_mask[2] <= ~(ea[1:0] == 2);
-                mem_write_mask[3] <= ~(ea[1:0] == 3);
               end
             2'b01:
               begin
                 mem_write[15:0]  = store_temp[15:0];
                 mem_write[31:16] = store_temp[15:0];
-
-                mem_write_mask[0] <= ea[1:0] == 2;
-                mem_write_mask[1] <= ea[1:0] == 2;
-                mem_write_mask[2] <= ea[1:0] == 0;
-                mem_write_mask[3] <= ea[1:0] == 0;
               end
             2'b11:
               begin
                 mem_write = store_temp;
-                mem_write_mask <= 4'b0000;
               end
           endcase
 
@@ -525,6 +511,38 @@ always @(posedge clk) begin
           state <= STATE_HALTED;
         end
     endcase
+end
+
+always @ * begin
+  case (memory_size[1:0])
+    2'b00:
+      begin
+        //mem_write[7:0]   = store_temp[7:0];
+        //mem_write[15:8]  = store_temp[7:0];
+        //mem_write[23:16] = store_temp[7:0];
+        //mem_write[31:24] = store_temp[7:0];
+
+        mem_write_mask[0] <= ~(ea[1:0] == 0);
+        mem_write_mask[1] <= ~(ea[1:0] == 1);
+        mem_write_mask[2] <= ~(ea[1:0] == 2);
+        mem_write_mask[3] <= ~(ea[1:0] == 3);
+      end
+    2'b01:
+      begin
+        //mem_write[15:0]  = store_temp[15:0];
+        //mem_write[31:16] = store_temp[15:0];
+
+        mem_write_mask[0] <= ea[1:0] == 2;
+        mem_write_mask[1] <= ea[1:0] == 2;
+        mem_write_mask[2] <= ea[1:0] == 0;
+        mem_write_mask[3] <= ea[1:0] == 0;
+      end
+    default:
+      begin
+        //mem_write = store_temp;
+        mem_write_mask <= 4'b0000;
+      end
+  endcase
 end
 
 memory_bus memory_bus_0(

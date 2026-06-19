@@ -46,13 +46,12 @@ wire ram_write_enable;
 wire peripherals_write_enable;
 wire block_ram_write_enable;
 
-assign ram_write_enable = (address[15:14] == 2'b00) && write_enable;
+assign ram_write_enable         = (address[15:14] == 2'b00) && write_enable;
 assign peripherals_write_enable = (address[15:14] == 2'b10) && write_enable;
-assign block_ram_write_enable = (address[15:14] == 2'b11) && write_enable;
+assign block_ram_write_enable   = (address[15:14] == 2'b11) && write_enable;
 
 // FIXME: The RAM probably need an enable also.
-wire peripherals_enable;
-assign peripherals_enable = (address[15:14] == 2'b10) && bus_enable;
+wire peripherals_enable = (address[15:14] == 2'b10) && bus_enable;
 
 // Based on the selected bank of memory (address[15:14]) select if
 // memory should read from ram.v, rom.v, peripherals.v.
