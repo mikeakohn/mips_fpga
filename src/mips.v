@@ -44,11 +44,11 @@ wire [31:0] ea;
 assign ea = registers[rs] + simm16;
 
 // Memory bus (ROM, RAM, peripherals).
-wire [15:0] mem_address = state <= STATE_FETCH_OP_1 ? pc : { ea[15:2], 2'b00 };
+wire [15:0] mem_address = state == STATE_FETCH_OP_0 ? pc : { ea[15:2], 2'b00 };
 reg  [31:0] mem_write;
 reg  [3:0]  mem_write_mask;
 wire [31:0] mem_read;
-wire mem_bus_enable = state == STATE_FETCH_OP_1 || STATE_FETCH_LOAD || STATE_STORE_0;
+wire mem_bus_enable = state == STATE_FETCH_OP_0 || STATE_FETCH_LOAD || STATE_STORE_0;
 wire mem_write_enable = state == STATE_STORE_0;
 
 // Clock.
@@ -132,7 +132,7 @@ end
 parameter STATE_RESET        = 0;
 parameter STATE_DELAY_LOOP   = 1;
 parameter STATE_FETCH_OP_0   = 2;
-parameter STATE_FETCH_OP_1   = 3;
+//parameter STATE_FETCH_OP_1   = 3;
 parameter STATE_START_DECODE = 4;
 parameter STATE_FETCH_LOAD   = 5;
 
@@ -187,9 +187,6 @@ always @(posedge clk) begin
       STATE_RESET:
         begin
           registers[0] <= 0;
-          //mem_address <= 0;
-          //mem_write_enable <= 0;
-          //mem_write <= 0;
           instruction <= 0;
           delay_loop <= 12000;
           state <= STATE_DELAY_LOOP;
@@ -209,13 +206,6 @@ always @(posedge clk) begin
           wb        <= WB_RD;
           alu_op    <= ALU_OP_NONE;
           do_branch <= 0;
-          //mem_bus_enable   <= 1;
-          //mem_address <= pc;
-          state <= STATE_FETCH_OP_1;
-        end
-      STATE_FETCH_OP_1:
-        begin
-          //mem_bus_enable <= 0;
           instruction <= mem_read;
           state <= STATE_START_DECODE;
         end
@@ -298,7 +288,6 @@ always @(posedge clk) begin
               3'b100:
                 begin
                   // Load (lb, lbu, lh, lhu, lw).
-                  //mem_bus_enable <= 1;
                   state <= STATE_FETCH_LOAD;
                 end
               3'b101:
@@ -309,17 +298,10 @@ always @(posedge clk) begin
             endcase
 
             wb <= WB_RT;
-
-            // This can probably be a wire.
-            //ea <= registers[rs] + simm16;
-            //mem_address <= registers[rs] + simm16;
-            //mem_address <= { ea[15:2], 2'b00 };
           end
         end
       STATE_FETCH_LOAD:
         begin
-            //mem_bus_enable <= 0;
-
             case (memory_size[1:0])
               2'b00:
                 begin
@@ -371,32 +353,7 @@ always @(posedge clk) begin
         end
       STATE_STORE_0:
         begin
-/*
-          store_temp = registers[rt];
-
-          case (memory_size[1:0])
-            2'b00:
-              begin
-                mem_write[7:0]   = store_temp[7:0];
-                mem_write[15:8]  = store_temp[7:0];
-                mem_write[23:16] = store_temp[7:0];
-                mem_write[31:24] = store_temp[7:0];
-              end
-            2'b01:
-              begin
-                mem_write[15:0]  = store_temp[15:0];
-                mem_write[31:16] = store_temp[15:0];
-              end
-            2'b11:
-              begin
-                mem_write = store_temp;
-              end
-          endcase
-*/
-
           wb <= WB_NONE;
-          //mem_write_enable <= 1;
-          //mem_bus_enable <= 1;
           state <= STATE_WRITEBACK;
         end
       STATE_ALU:
@@ -494,9 +451,6 @@ always @(posedge clk) begin
             WB_PC_26: pc[15:2] <= instruction[13:0];
             WB_BR: if (do_branch) pc <= result;
           endcase
-
-          //mem_bus_enable <= 0;
-          //mem_write_enable <= 0;
 
           state <= STATE_FETCH_OP_0;
         end
