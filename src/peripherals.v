@@ -30,11 +30,8 @@ module peripherals
   input  spi_miso
 );
 
-reg [7:0] storage [3:0];
-
 reg [15:0] speaker_value_high;
 reg [15:0] speaker_value_curr;
-reg [7:0]  buttons;
 
 reg speaker_toggle;
 reg speaker_value_p;
@@ -57,10 +54,6 @@ reg  [15:0] spi_tx_buffer;
 wire spi_busy;
 reg spi_start;
 reg spi_width_16;
-
-always @(button_0) begin
-  buttons = { 7'b0, ~button_0 };
-end
 
 always @(posedge raw_clk) begin
   if (speaker_value_high == 16'b0) begin
@@ -148,7 +141,7 @@ always @(posedge raw_clk) begin
 
     if (enable) begin
       case (address[7:2])
-        5'h0: data_out <= buttons;
+        5'h0: data_out <= ~button_0;
         5'h1: data_out <= spi_tx_buffer;
         5'h2: data_out <= spi_rx_buffer;
         5'h3: data_out <= { 5'b00000, spi_width_16, 1'b0, spi_busy };

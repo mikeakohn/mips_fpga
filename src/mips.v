@@ -54,7 +54,7 @@ wire mem_write_enable = state == STATE_STORE_0;
 // Clock.
 reg [21:0] count = 0;
 reg [4:0] state = 0;
-reg [3:0] clock_div;
+//reg [3:0] clock_div;
 reg [14:0] delay_loop;
 wire clk;
 //assign clk = clock_div[0];
@@ -115,7 +115,7 @@ reg [31:0] shift_temp;
 // This block is simply a clock divider for the raw_clk.
 always @(posedge raw_clk) begin
   count <= count + 1;
-  clock_div <= clock_div + 1;
+  //clock_div <= clock_div + 1;
 end
 
 // Debug: This block simply drives the 8x4 LEDs.
@@ -132,23 +132,21 @@ end
 parameter STATE_RESET        = 0;
 parameter STATE_DELAY_LOOP   = 1;
 parameter STATE_FETCH_OP_0   = 2;
-//parameter STATE_FETCH_OP_1   = 3;
-parameter STATE_START_DECODE = 4;
-parameter STATE_FETCH_LOAD   = 5;
+parameter STATE_START_DECODE = 3;
+parameter STATE_FETCH_LOAD   = 4;
 
-parameter STATE_STORE_0      = 6;
+parameter STATE_STORE_0      = 5;
 
-parameter STATE_ALU          = 7;
-parameter STATE_CONTROL      = 8;
+parameter STATE_ALU          = 6;
+parameter STATE_CONTROL      = 7;
 
-parameter STATE_JUMP         = 9;
-parameter STATE_BRANCH       = 10;
-parameter STATE_WRITEBACK    = 11;
+parameter STATE_JUMP         = 8;
+parameter STATE_BRANCH       = 9;
+parameter STATE_WRITEBACK    = 10;
 
 parameter STATE_DEBUG        = 29;
 parameter STATE_ERROR        = 30;
 parameter STATE_HALTED       = 31;
-
 
 parameter ALU_OP_NONE  = 0;
 parameter ALU_OP_MOV   = 1;
