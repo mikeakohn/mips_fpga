@@ -48,7 +48,11 @@ wire [15:0] mem_address = state == STATE_FETCH_OP_0 ? pc : { ea[15:2], 2'b00 };
 reg  [31:0] mem_write;
 reg  [3:0]  mem_write_mask;
 wire [31:0] mem_read;
-wire mem_bus_enable = state == STATE_FETCH_OP_0 || STATE_FETCH_LOAD || STATE_STORE_0;
+wire mem_bus_enable =
+  (state == STATE_FETCH_OP_0) ||
+  (state == STATE_START_DECODE) ||
+  (state == STATE_FETCH_LOAD) ||
+  (state == STATE_STORE_0);
 wire mem_write_enable = state == STATE_STORE_0;
 
 // Clock.
@@ -102,6 +106,7 @@ reg [31:0] lo;
 reg [3:0] alu_op;
 reg [2:0] wb;
 
+//wire [31:0] store_temp = registers[rt];
 reg [31:0] store_temp;
 reg [31:0] alu_temp;
 reg [31:0] shift_temp;
@@ -300,54 +305,54 @@ always @(posedge clk) begin
         end
       STATE_FETCH_LOAD:
         begin
-            case (memory_size[1:0])
-              2'b00:
-                begin
-                  case (ea[1:0])
-                    0:
-                      begin
-                        result[7:0] <= mem_read[7:0];
-                        result[31:8] <= { {24{ mem_read[7] & ~memory_size[2] } } };
-                      end
-                    1:
-                      begin
-                        result[7:0] <= mem_read[15:8];
-                        result[31:8] <= { {24{ mem_read[15] & ~memory_size[2] } } };
-                      end
-                    2:
-                      begin
-                        result[7:0] <= mem_read[23:16];
-                        result[31:8] <= { {24{ mem_read[23] & ~memory_size[2] } } };
-                      end
-                    3:
-                      begin
-                        result[7:0] <= mem_read[31:24];
-                        result[31:8] <= { {24{ mem_read[31] & ~memory_size[2] } } };
-                      end
-                  endcase
-                end
-              2'b01:
-                begin
-                  case (ea[1])
-                    0:
-                      begin
-                        result[15:0] <= mem_read[15:0];
-                        result[31:16] <= { {16{ mem_read[15] & ~memory_size[2] } } };
-                      end
-                    1:
-                      begin
-                        result[15:0] <= mem_read[31:16];
-                        result[31:16] <= { {16{ mem_read[31] & ~memory_size[2] } } };
-                      end
-                  endcase
-                end
-              2'b11:
-                begin
-                  result <= mem_read;
-                end
-            endcase
+          case (memory_size[1:0])
+            2'b00:
+              begin
+                case (ea[1:0])
+                  0:
+                    begin
+                      result[7:0]  <= mem_read[7:0];
+                      result[31:8] <= { {24{ mem_read[7] & ~memory_size[2] } } };
+                    end
+                  1:
+                    begin
+                      result[7:0]  <= mem_read[15:8];
+                      result[31:8] <= { {24{ mem_read[15] & ~memory_size[2] } } };
+                    end
+                  2:
+                    begin
+                      result[7:0]  <= mem_read[23:16];
+                      result[31:8] <= { {24{ mem_read[23] & ~memory_size[2] } } };
+                    end
+                  3:
+                    begin
+                      result[7:0]  <= mem_read[31:24];
+                      result[31:8] <= { {24{ mem_read[31] & ~memory_size[2] } } };
+                    end
+                endcase
+              end
+            2'b01:
+              begin
+                case (ea[1])
+                  0:
+                    begin
+                      result[15:0]  <= mem_read[15:0];
+                      result[31:16] <= { {16{ mem_read[15] & ~memory_size[2] } } };
+                    end
+                  1:
+                    begin
+                      result[15:0]  <= mem_read[31:16];
+                      result[31:16] <= { {16{ mem_read[31] & ~memory_size[2] } } };
+                    end
+                endcase
+              end
+            2'b11:
+              begin
+                result <= mem_read;
+              end
+          endcase
 
-            state <= STATE_WRITEBACK;
+          state <= STATE_WRITEBACK;
         end
       STATE_STORE_0:
         begin
@@ -473,10 +478,10 @@ always @ * begin
   case (memory_size[1:0])
     2'b00:
       begin
-        mem_write[7:0]   = store_temp[7:0];
-        mem_write[15:8]  = store_temp[7:0];
-        mem_write[23:16] = store_temp[7:0];
-        mem_write[31:24] = store_temp[7:0];
+        mem_write[7:0]   <= store_temp[7:0];
+        mem_write[15:8]  <= store_temp[7:0];
+        mem_write[23:16] <= store_temp[7:0];
+        mem_write[31:24] <= store_temp[7:0];
 
         mem_write_mask[0] <= ~(ea[1:0] == 0);
         mem_write_mask[1] <= ~(ea[1:0] == 1);
@@ -485,8 +490,8 @@ always @ * begin
       end
     2'b01:
       begin
-        mem_write[15:0]  = store_temp[15:0];
-        mem_write[31:16] = store_temp[15:0];
+        mem_write[15:0]  <= store_temp[15:0];
+        mem_write[31:16] <= store_temp[15:0];
 
         mem_write_mask[0] <= ea[1:0] == 2;
         mem_write_mask[1] <= ea[1:0] == 2;
@@ -495,7 +500,7 @@ always @ * begin
       end
     default:
       begin
-        mem_write = store_temp;
+        mem_write <= store_temp;
         mem_write_mask <= 4'b0000;
       end
   endcase
